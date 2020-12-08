@@ -182,14 +182,14 @@ class Solver:
         vars1 = self.phrase1.get_vars()
         vars2 = self.phrase2.get_vars()
 
-        print(vars1)
-        print(vars2)
+        # print(vars1)
+        # print(vars2)
         if vars1 != vars2:
             return False
 
         nrof_vars = len(vars1)
         for values in product([True, False], repeat=nrof_vars):
-            print(values)
+            # print(values)
             variable_dict = dict(zip(vars1, values))
 
             if self.phrase1.evaluate(variable_dict) != self.phrase2.evaluate(variable_dict):
@@ -202,8 +202,12 @@ if __name__ == "__main__":
     try:
         # p1 = BooleanParser('(((FALSE OR b) AND FALSE) OR a)')
         # p2 = BooleanParser('(a OR (FALSE AND b) OR TRUE)')
-        p1 = BooleanParser('(a AND (b OR c))')
-        p2 = BooleanParser('((a AND b) OR (a AND c))')
+        expr1 = '(a AND (c OR b))'
+        expr2 = '((a AND b) OR (a AND c))'
+        print("Expression 1: {}".format(expr1))
+        print("Expression 2: {}".format(expr2))
+        p1 = BooleanParser(expr1)
+        p2 = BooleanParser(expr2)
         # variable_dict = {'a': False, 'b': True}
         # print(p1.get_vars())
         # print(p1.evaluate(variable_dict))
