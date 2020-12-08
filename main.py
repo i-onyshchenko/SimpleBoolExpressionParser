@@ -136,7 +136,7 @@ class BooleanParser:
                 raise Exception('BOOL or VAR expected, but got ' + self.tokenizer.next())
 
         else:
-            raise Exception('BOOL or VAR expected, but got ' + self.tokenizer.next())
+            raise Exception('BOOL or VAR expected, but got the end of the expression')
 
     def check_correctness(self):
         if self.tokenizer.hasNext():
@@ -202,7 +202,8 @@ if __name__ == "__main__":
     try:
         # p1 = BooleanParser('(((FALSE OR b) AND FALSE) OR a)')
         # p2 = BooleanParser('(a OR (FALSE AND b) OR TRUE)')
-        expr1 = '(a AND (c OR b))'
+        expr1 = "(TRUE) AND FALSE"
+        # expr1 = '(a AND (c OR b)) AND'
         expr2 = '((a AND b) OR (a AND c))'
         print("Expression 1: {}".format(expr1))
         print("Expression 2: {}".format(expr2))
