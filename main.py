@@ -80,24 +80,20 @@ class BooleanParser:
         self.tokenizer = Tokenizer(exp)
         self.tokenizer.tokenize()
         self.vars = self.tokenizer.get_vars()
-        self.nrof_brackets = 0
         self.parse()
 
     def parse(self):
+        self.checkBrackets()
         self.root = self.parseExpression()
-        self.check_correctness()
+        self.checkRemainingTokens()
 
     def parseExpression(self):
         if self.tokenizer.hasNext() and self.tokenizer.nextTokenType() == TokenType.LP:
-            self.nrof_brackets += 1
             self.tokenizer.next()
             expression = self.parseExpression()
             if self.tokenizer.hasNext() and self.tokenizer.nextTokenType() == TokenType.RP:
-                self.nrof_brackets -= 1
                 self.tokenizer.next()
                 if self.tokenizer.hasNext() and self.tokenizer.nextTokenTypeIsOperator():
-                    if self.nrof_brackets < 1:
-                        raise Exception("There are not enough brackets!")
                     tokenType = self.tokenizer.nextTokenType()
                     self.tokenizer.next()
                     expression2 = self.parseExpression()
@@ -114,8 +110,6 @@ class BooleanParser:
 
         terminal1 = self.parseTerminal()
         if self.tokenizer.hasNext() and self.tokenizer.nextTokenTypeIsOperator():
-            if self.nrof_brackets < 1:
-                raise Exception("There are not enough brackets!")
             condition = TreeNode(self.tokenizer.nextTokenType())
             self.tokenizer.next()
             # terminal2 = self.parseTerminal()
@@ -145,7 +139,24 @@ class BooleanParser:
         else:
             raise Exception('BOOL or VAR expected, but got the end of the expression')
 
-    def check_correctness(self):
+    def checkBrackets(self):
+        aux_ops_stack = []
+
+        while self.tokenizer.hasNext():
+            if self.tokenizer.nextTokenType() == TokenType.LP:
+                aux_ops_stack.append(self.tokenizer.next())
+            elif self.tokenizer.nextTokenType() == TokenType.RP:
+                aux_ops_stack.append(self.tokenizer.next())
+            elif self.tokenizer.nextTokenTypeIsOperator():
+                if len(aux_ops_stack) == 0 or aux_ops_stack[-1] == "OR" or aux_ops_stack[-1] == "AND":
+                    raise Exception("There are not enough brackets")
+                aux_ops_stack.append(self.tokenizer.next())
+            else:
+                self.tokenizer.next()
+
+        self.tokenizer.i = 0
+
+    def checkRemainingTokens(self):
         if self.tokenizer.hasNext():
             if self.tokenizer.nextTokenType() == TokenType.RP:
                 raise Exception("Unexpected )")
@@ -209,7 +220,7 @@ if __name__ == "__main__":
     try:
         # p1 = BooleanParser('(((FALSE OR b) AND FALSE) OR a)')
         # p2 = BooleanParser('(a OR (FALSE AND b) OR TRUE)')
-        expr1 = '(a AND (c OR b))'
+        expr1 = '((a) AND (c OR b))'
         expr2 = '((a AND b) OR (a AND c))'
         print("Expression 1: {}".format(expr1))
         print("Expression 2: {}".format(expr2))
